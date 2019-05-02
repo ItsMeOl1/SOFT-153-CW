@@ -6,98 +6,179 @@ using System.Threading.Tasks;
 
 namespace Double_linked_list
 {
+
+
     // single elements in the list 
-    class Node
+    class Node 
     {
-        public int data;
-        public Node next;
+        public int Data { get; set; }
+        public Node Next { get; set; }     // Next/Previous might want "private set" if
+        public Node Previous { get; set; }
+
+        public Node(Node next, Node prev, int data) //Can just pass through other nodes as it passes references, meaning there arent duplicates in memory
+        {
+            Next = next;
+            Previous = prev;
+            Data = data;
+        }
     }
 
     // this holds the head of the list
-    class List
+    class DoubleLinkedList
     {
         public Node firstNode;
         public Node lastNode;
-    }
-    class Program
-    {
-        static void insertBeginning(List list, Node newNode)
+
+        public void insertBeginning(Node newNode)
         {
-            newNode.next = list.firstNode;
-            list.firstNode = newNode;
+            newNode.Next = firstNode;
+            firstNode = newNode;
         }
 
-        static Node removeBeginning(List list)
+        public void insertEnd(Node newNode)
         {
-            Node returnNode;
-            returnNode = list.firstNode;
-            list.firstNode = list.firstNode.next;
-            return (returnNode);
+            lastNode.Next = newNode;
+            lastNode = newNode;
         }
 
-        static void insertAfter(Node node, Node newNode)
+        public void insertAfter(Node node, Node newNode)
         {
-            newNode.next = node.next;
-            node.next = newNode;
+            node.Next.Previous = newNode;
+            newNode.Next = node.Next;
+            newNode.Previous = node.Previous;
+            node.Next = newNode;
         }
 
-        static Node removeAfter(Node node)
-        {
-            Node returnNode;
-            returnNode = node.next;
-            node.next = node.next.next;
-            return (returnNode);
-        }
-
-        static void printList(List list)
-        {
-            Node node = list.firstNode;
+        public int listLength()
+        { 
+            int i = 0;
+            Node node = firstNode;
             while (node != null)
             {
-                System.Console.Write(node.data);
+                i++;
+                node = node.Next;
+            }
+            return i;
+        }
+
+        public bool findNode(Node toFind)
+        {
+            Node node = firstNode;
+            while (node != null)
+            {
+                if (node == toFind)
+                {
+                    return true;
+                }
+                node = node.Next;
+            }
+            return false;
+        }
+
+        public void removeBeginning()
+        {
+            firstNode = firstNode.Next;
+            firstNode.Previous = null;
+        }
+
+        public void removeNode(Node node)
+        {
+            node.Previous.Next = node.Next;
+            node.Next.Previous = node.Previous;
+        }
+
+        public void swapNodes(Node node1, Node node2)
+        {
+            Console.WriteLine("");
+            Console.WriteLine(node1.Previous.Data);
+            Console.WriteLine(node1.Next.Data);
+            Console.WriteLine(node2.Previous.Data);
+            Console.WriteLine(node2.Next.Data);
+            Console.WriteLine("");
+            Node node1P = node1.Previous;
+            Node node1N = node1.Next;
+            node1.Previous = node2.Previous;
+            node1.Next = node2.Next;
+            node2.Previous = node1P;
+            node2.Next = node1N;
+        }
+
+        public void printList()
+        {
+            Node node = firstNode;
+            System.Console.Write(node.Data);
+            node = node.Next;
+            while (node != null)
+            {
                 System.Console.Write(" -> ");
-                node = node.next;
+                System.Console.Write(node.Data);
+                node = node.Next;
             }
             System.Console.WriteLine("");
         }
 
-        static void Main()
+        public void appendLists(DoubleLinkedList list)
         {
-            List list = new List(); ;
-            Node node, node2;
-            int i;
-
-            // add a few nodes 
-            for (i = 0; i < 4; i = i + 1)
-            {
-                node = new Node();
-                node.data = i;
-                insertBeginning(list, node);
-            }
-            printList(list); // now we have nodes
-
-            node2 = new Node();
-            node2.data = 6;
-            insertAfter(list.firstNode, node2);
-            printList(list);
-
-            removeBeginning(list); // Note: the returned Node is silently discarded
-            printList(list);
-
-            removeAfter(list.firstNode);  // ... here as well ...
-            printList(list);
-
-            for (i = 1; i < 4; i = i + 1)
-                removeBeginning(list);
-
-            printList(list);
-
-            removeBeginning(list);  // if we remove too many Nodes we get an error
-            printList(list); // our functions have no error checking 
-
+            lastNode.Next = list.firstNode;
+            lastNode = list.lastNode;
         }
     }
 
+    class Program
+    {
+        static void Main()
+        {
+            DoubleLinkedList list = new DoubleLinkedList();
+            Node node;
+            list.insertBeginning(node = new Node(null, null, 1));
+            list.insertBeginning(node = new Node(null, null, 0));
+            list.lastNode = list.firstNode.Next;
+            list.printList();
+
+            Console.WriteLine("in begining");
+            list.insertBeginning(node = new Node(null, null, 2));
+            list.printList();
+
+            Console.WriteLine("in end");
+            list.insertEnd(node = new Node(null, null, 3));
+            list.printList();
+
+            Console.WriteLine("in after first node");
+            list.insertAfter(list.firstNode, node = new Node(null, null, 4));
+            list.printList();
+
+            Console.WriteLine("find node t");
+            Console.WriteLine(list.findNode(list.lastNode));
+
+            Console.WriteLine("find node f");
+            Console.WriteLine(list.findNode(node = new Node(null, null, 5)));
+
+            Console.WriteLine("remove begining");
+            list.removeBeginning();
+            list.printList();
+
+            Console.WriteLine("Remove");
+            list.removeNode(list.firstNode.Next);
+            list.printList();
+
+            Console.WriteLine("append");
+            DoubleLinkedList dll = new DoubleLinkedList();
+            dll.insertBeginning(new Node(null, null, 8));
+            dll.insertBeginning(new Node(null, null, 9));
+            dll.lastNode = dll.firstNode.Next;
+            list.appendLists(dll);
+            list.printList();
+
+            Console.WriteLine("swap");
+            list.swapNodes(list.firstNode, list.lastNode);
+            list.printList();
+
+            
+
+
+            Console.ReadLine();
+
+
+        }
+    }
 }
-
-
