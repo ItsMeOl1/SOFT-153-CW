@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace Double_linked_list
 {
@@ -11,9 +12,9 @@ namespace Double_linked_list
     // single elements in the list 
     class Node 
     {
-        public int Data { get; set; }
-        public Node Next { get; set; }     // Next/Previous might want "private set" if
-        public Node Previous { get; set; }
+        public int Data { get; set; } //the data in the node
+        public Node Next { get; set; }   //the next node in the list
+        public Node Previous { get; set; }//the previous node in the list
 
         public Node(Node next, Node prev, int data) //Can just pass through other nodes as it passes references, meaning there arent duplicates in memory
         {
@@ -26,39 +27,48 @@ namespace Double_linked_list
     // this holds the head of the list
     class DoubleLinkedList
     {
-        public Node firstNode;
-        public Node lastNode;
+        public Node firstNode; //the first node in the list
+        public Node lastNode;//the last node in the list
 
-        public void insertBeginning(Node newNode)
+    }
+
+    class Program
+    {
+        static void Main()
         {
-            if (firstNode == null)
+            runTimeTests();
+        }
+
+        static void insertBeginning(DoubleLinkedList l, Node newNode) //Insert a node into the begining of the list
+        {
+            if (l.firstNode == null) //if the list is empty
             {
-                firstNode = lastNode = newNode;
+                l.firstNode = l.lastNode = newNode; //make this node the first and last node
                 newNode.Next = newNode.Previous = null;
             }
             else
             {
-                newNode.Next = firstNode;
-                firstNode.Previous = newNode;
-                firstNode = newNode;
+                newNode.Next = l.firstNode; //add the node to the begining
+                l.firstNode.Previous = newNode;
+                l.firstNode = newNode;
             }
         }
 
-        public void insertEnd(Node newNode)
+        static void insertEnd(DoubleLinkedList l, Node newNode)//Insert a node into the end of the list
         {
-            if (lastNode == null)
+            if (l.lastNode == null) //if there isnt a node in the list
             {
-                firstNode = lastNode = newNode;
+                l.firstNode = l.lastNode = newNode; //make this the first and the last node
             }
             else
             {
-                lastNode.Next = newNode;
-                newNode.Previous = lastNode;
-                lastNode = newNode;
+                l.lastNode.Next = newNode; //add this node to the end
+                newNode.Previous = l.lastNode;
+                l.lastNode = newNode;
             }
         }
 
-        public void insertAfter(Node node, Node newNode)
+        static void insertAfter(DoubleLinkedList l, Node node, Node newNode)//Insert a node after a given node in the list
         {
             node.Next.Previous = newNode;
             newNode.Next = node.Next;
@@ -66,25 +76,25 @@ namespace Double_linked_list
             node.Next = newNode;
         }
 
-        public int listLength()
-        { 
+        static int listLength(DoubleLinkedList l)//get the length of the list
+        {
             int i = 0;
-            Node node = firstNode;
-            while (node != null)
+            Node node = l.firstNode;
+            while (node != null) //cycle through the list
             {
-                i++;
+                i++; //count each time
                 node = node.Next;
-                
+
             }
             return i;
         }
 
-        public bool findNode(Node toFind)
-        {
-            Node node = firstNode;
-            while (node != null)
+        static bool findNode(DoubleLinkedList l, Node toFind) //find if a node is in the list
+        { 
+            Node node = l.firstNode;
+            while (node != null) //while the node isnt found cycle through the nodes
             {
-                if (node == toFind)
+                if (node == toFind) //if the node matches the given node
                 {
                     return true;
                 }
@@ -93,38 +103,38 @@ namespace Double_linked_list
             return false;
         }
 
-        public void removeBeginning()
+        static void removeBeginning(DoubleLinkedList l) //remove the node at the end of the list
         {
-            firstNode = firstNode.Next;
-            firstNode.Previous = null;
+            l.firstNode = l.firstNode.Next;//call the next node the first node
+            l.firstNode.Previous = null; //remove the old node
         }
 
-        public void removeNode(Node node)
+        static void removeNode(DoubleLinkedList l, Node node) //remove a given node
         {
-            if (node.Previous != null)
+            if (node.Previous != null)//if it has a previous node make it point to the next node
             {
-                node.Previous.Next = node.Next;
+                node.Previous.Next = node.Next; 
             }
             else
             {
-                firstNode = node.Next;
+                l.firstNode = node.Next;
             }
-            if (node.Next != null)
+            if (node.Next != null) //if there is a next node make it point to the previous
             {
                 node.Next.Previous = node.Previous;
             }
             else
             {
-                lastNode = node.Previous;
+                l.lastNode = node.Previous;
             }
         }
 
-        public void swapNodes(Node node1, Node node2)
+        static void swapNodes(DoubleLinkedList l, Node node1, Node node2)// swap the positions of two nodes in the list
         {
-            if (node1.Previous == node2 || node1.Next == node2)
+            if (node1.Previous == node2 || node1.Next == node2) //if the nodes are next to each other
             {
                 Node nodeA, nodeB;
-                if (node1.Previous == node2)
+                if (node1.Previous == node2) //rename them for consistency
                 {
                     nodeA = node2;
                     nodeB = node1;
@@ -135,16 +145,16 @@ namespace Double_linked_list
                     nodeB = node2;
                 }
 
-                if (nodeA.Previous != null)
+                if (nodeA.Previous != null) //swap all references
                 {
                     nodeA.Previous.Next = nodeB;
                 }
-                else { firstNode = nodeB; }
+                else { l.firstNode = nodeB; }
                 if (nodeB.Next != null)
                 {
                     nodeB.Next.Previous = nodeA;
                 }
-                else { lastNode = nodeA; }
+                else { l.lastNode = nodeA; }
 
                 Node nan = nodeA.Next;
                 Node nap = nodeA.Previous;
@@ -158,17 +168,17 @@ namespace Double_linked_list
                 Node n1p = node1.Previous;
                 Node n1n = node1.Next;
 
-                node1.Previous = node2.Previous;
+                node1.Previous = node2.Previous; //swap all references to them
                 node1.Next = node2.Next;
                 if (node1.Previous == null)
                 {
                     node1.Next.Previous = node1;
-                    firstNode = node1;
+                    l.firstNode = node1;
                 }
                 else if (node1.Next == null)
                 {
                     node1.Previous.Next = node1;
-                    lastNode = node1;
+                    l.lastNode = node1;
                 }
                 else
                 {
@@ -181,12 +191,12 @@ namespace Double_linked_list
                 if (node2.Previous == null)
                 {
                     node2.Next.Previous = node2;
-                    firstNode = node2;
+                    l.firstNode = node2;
                 }
                 else if (node2.Next == null)
                 {
                     node2.Previous.Next = node2;
-                    lastNode = node2;
+                    l.lastNode = node2;
                 }
                 else
                 {
@@ -197,34 +207,35 @@ namespace Double_linked_list
 
         }
 
-        public void printList()
+        static void printList(DoubleLinkedList l) //display the list
         {
-            if (firstNode != null)
+            if (l.firstNode != null) //if there are nodes in the list
             {
-                Node node = firstNode;
-                System.Console.Write(node.Data);
+                Node node = l.firstNode;
+                Console.Write(node.Data);
                 node = node.Next;
-                while (node != null)
+                while (node != null) //cycle through the nodes
                 {
-                    System.Console.Write(" -> ");
-                    System.Console.Write(node.Data);
+                    Console.Write(" -> "); //put an arrow between them for easy reading
+                    Console.Write(node.Data); //display the nodes data
                     node = node.Next;
                 }
-                System.Console.WriteLine("");
+                System.Console.WriteLine(""); //end it with a line break
             }
         }
 
-        public void appendLists(DoubleLinkedList list)
+        static void appendLists(DoubleLinkedList l, DoubleLinkedList list) //add another list to a list
         {
-            lastNode.Next = list.firstNode;
-            lastNode = list.lastNode;
+            l.lastNode.Next = list.firstNode; //join them through references
+            list.firstNode.Previous = l.lastNode;
+            l.lastNode = list.lastNode; //edit the last node to reference the last node of the 2nd list
         }
 
-        public void insertionSort()
+        static void insertionSort(DoubleLinkedList l) //sort the list using insertion sort
         {
-            for (int index = 1; index <= listLength(); index++)
+            for (int index = 1; index <= listLength(l); index++) //go trough each node
             {
-                Node current = firstNode;
+                Node current = l.firstNode;
                 int i = index;
                 while (i > 1) //select the next node
                 {
@@ -232,159 +243,228 @@ namespace Double_linked_list
                     current = current.Next;
                 }
 
-                while (current.Previous != null && current.Previous.Data > current.Data)
+                while (current.Previous != null && current.Previous.Data > current.Data) //swap untill its in the right place
                 {
-                    swapNodes(current, current.Previous);
+                    swapNodes(l, current, current.Previous);
                 }
             }
         }
 
-        
-    }
-
-    class Program
-    {
-        static void Main()
-        {
-            TestLinkedList();
-
-
-        }
-
-        static DoubleLinkedList quickSort(DoubleLinkedList dll, Random rand)
+        static DoubleLinkedList quickSort(DoubleLinkedList l, Random rand)
         {
             Console.Write("going to sort: ");
-            dll.printList();
-            if (dll.listLength() > 2)
+            printList(l);
+            if (listLength(l) > 2) //if the list needs sorting
             {
-                DoubleLinkedList dll2 = new DoubleLinkedList();
-                Node partition = dll.firstNode;
-                for (int i = 1; i < rand.Next(dll.listLength()); i++)
+                DoubleLinkedList l2 = new DoubleLinkedList();
+                Node partition = l.firstNode;
+                for (int i = 1; i < rand.Next(listLength(l)); i++)// choose a random node
                 {
                     partition = partition.Next;
-                } // choose a random node
+                } 
 
-                dll.removeNode(partition);
-                Console.WriteLine("My partition is " + partition.Data);
+                removeNode(l, partition); //remove the partition from the lists to be sorted
 
-                Node node = dll.firstNode;
-                while (node != null)
+                Node node = l.firstNode;
+                while (node != null) //go through all the nodes
                 {
-                    if (node.Data < partition.Data)
+                    if (node.Data < partition.Data) //compare it to the partition
                     {
-                        dll2.insertBeginning(new Node(null, null, node.Data)); //Breaks everything?
+                        insertBeginning(l, new Node(null, null, node.Data)); //add it to the new small list
                         if (node.Next != null)
                         {
                             node = node.Next;
-                            dll.removeNode(node.Previous);
+                            removeNode(l, node.Previous);
                         }
                         else
                         {
-                            dll.removeNode(node);
+                            removeNode(l, node);
                             node = null;
                         }
                     }
                     else
                     {
-                        node = node.Next;
+                        node = node.Next; //leave it in the big list
                     }
                 }
 
-                dll2 = quickSort(dll2, rand);
-                dll = quickSort(dll, rand);
-                dll2.insertEnd(partition);
-                dll2.appendLists(dll);
+                l2 = quickSort(l2, rand); //sort the small list
+                l = quickSort(l, rand); //sort the big list
+                insertEnd(l2, partition); //put the partition back in the midle of the lists
+                appendLists(l, l2);
 
 
 
-                return dll2;
+                return l2;
             }
-            else
+            else //if the list doesnt need sorting
             {
-                if (dll.firstNode != null)
+                if (l.firstNode != null) //if there are nodes in this list
                 {
-                    if(dll.firstNode.Next != null)
+                    if(l.firstNode.Next != null)
                     {
-                        if (dll.firstNode.Data > dll.lastNode.Data)
+                        if (l.firstNode.Data > l.lastNode.Data) //swap the nodes if they are in the wrong order
                         {
-                            dll.swapNodes(dll.firstNode, dll.lastNode);
+                            swapNodes(l, l.firstNode, l.lastNode);
                         }
-                        return dll;
+                        return l;
                     }
                     else
                     {
-                        dll.lastNode = dll.firstNode;
-                        return dll;
+                        l.lastNode = l.firstNode;
+                        return l;
                     }
                 }
-                return dll;
+                return l;
             }
         }
-        static void TestLinkedList()
+
+        static void runTimeTests()
         {
+            Random random = new Random();
+            Stopwatch sw = new Stopwatch();
             DoubleLinkedList list = new DoubleLinkedList();
-            Node node;
-            list.insertBeginning(node = new Node(null, null, 1));
-            list.insertBeginning(node = new Node(null, null, 0));
-            list.lastNode = list.firstNode.Next;
-            /*
-            list.printList();
 
-            Console.WriteLine("insert begining");
-            list.insertBeginning(node = new Node(null, null, 2));
-            list.printList();
+            Console.Write("Insertion sort with 100 nodes takes ");
+            for (int i = 0; i < 100; i++)
+            {
+                insertBeginning(list, new Node(null, null, random.Next(0, 10000)));
+            }
 
-            Console.WriteLine("insert end");
-            list.insertEnd(node = new Node(null, null, 3));
-            list.printList();
+            sw.Start();
+            insertionSort(list);
+            long time = sw.ElapsedMilliseconds;
+            Console.WriteLine(time.ToString() + "ms");
 
-            Console.WriteLine("insert after first node");
-            list.insertAfter(list.firstNode, node = new Node(null, null, 4));
-            list.printList();
+            Console.Write("Insertion sort with 1000 nodes takes ");
+            list = new DoubleLinkedList();
+            for (int i = 0; i < 1000; i++)
+            {
+                insertBeginning(list, new Node(null, null, random.Next(0, 10000)));
+            }
 
-            Console.WriteLine("list length");
-            Console.WriteLine(list.listLength());
+            sw.Reset();
+            sw.Start();
+            insertionSort(list);
+            time = sw.ElapsedMilliseconds;
+            Console.WriteLine(time.ToString() + "ms");
 
-            Console.WriteLine("find node (should be true)");
-            Console.WriteLine(list.findNode(list.lastNode));
+            Console.Write("Insertion sort with 10000 nodes takes ");
+            list = new DoubleLinkedList();
+            for (int i = 0; i < 10000; i++)
+            {
+                insertBeginning(list, new Node(null, null, random.Next(0, 10000)));
+            }
 
-            Console.WriteLine("find node (should be false)");
-            Console.WriteLine(list.findNode(node = new Node(null, null, 5)));
+            sw.Reset();
+            sw.Start();
+            insertionSort(list);
+            time = sw.ElapsedMilliseconds;
+            Console.WriteLine(time.ToString() + "ms");
 
-            Console.WriteLine("remove begining");
-            list.removeBeginning();
-            list.printList();
+            Console.Write("Insertion sort with 100000 nodes takes ");
+            list = new DoubleLinkedList();
+            for (int i = 0; i < 100000; i++)
+            {
+                insertBeginning(list, new Node(null, null, random.Next(0, 10000)));
+            }
 
-            Console.WriteLine("Remove 2nd node");
-            list.removeNode(list.firstNode.Next);
-            list.printList();
+            sw.Reset();
+            sw.Start();
+            insertionSort(list);
+            time = sw.ElapsedMilliseconds;
+            Console.WriteLine(time.ToString() + "ms");
 
-            Console.WriteLine("append");
-            DoubleLinkedList dll = new DoubleLinkedList();
-            dll.insertBeginning(new Node(null, null, 8));
-            dll.insertBeginning(new Node(null, null, 9));
-            dll.lastNode = dll.firstNode.Next;
-            list.appendLists(dll);
-            list.printList();
+            Console.Write("Insertion sort with 1000000 nodes takes ");
+            list = new DoubleLinkedList();
+            for (int i = 0; i < 1000000; i++)
+            {
+                insertBeginning(list, new Node(null, null, random.Next(0, 10000)));
+            }
 
-            Console.WriteLine("swap");
-            list.swapNodes(list.firstNode.Next, list.lastNode);
-            list.printList();
+            sw.Reset();
+            sw.Start();
+            insertionSort(list);
+            time = sw.ElapsedMilliseconds;
+            Console.WriteLine(time.ToString() + "ms");
 
-            Console.WriteLine("Insertion sort");
-            list.insertionSort();
-            list.printList(); */
+            //QUICKSORT
 
-            Console.WriteLine("Add more to sort");
-            list.insertEnd(new Node(null, null, 5));
-            list.insertBeginning(new Node(null, null, 3));
-            list.insertEnd(new Node(null, null, 7));
-            list.insertEnd(new Node(null, null, 4));
-            list.printList();
+            Console.Write("Quick sort with 100 nodes takes ");
+            for (int i = 0; i < 100; i++)
+            {
+                insertBeginning(list, new Node(null, null, random.Next(0, 10000)));
+            }
 
-            Console.WriteLine("Quicksort");
-            list = quickSort(list, new Random());
-            list.printList();
+            sw.Start();
+            quickSort(list, random);
+            time = sw.ElapsedMilliseconds;
+            Console.WriteLine(time.ToString() + "ms");
+
+            Console.Write("quick sort with 1000 nodes takes ");
+            list = new DoubleLinkedList();
+            for (int i = 0; i < 1000; i++)
+            {
+                insertBeginning(list, new Node(null, null, random.Next(0, 10000)));
+            }
+
+            sw.Reset();
+            sw.Start();
+            quickSort(list, random);
+            time = sw.ElapsedMilliseconds;
+            Console.WriteLine(time.ToString() + "ms");
+
+            Console.Write("quick sort with 2000 nodes takes ");
+            list = new DoubleLinkedList();
+            for (int i = 0; i < 2000; i++)
+            {
+                insertBeginning(list, new Node(null, null, random.Next(0, 10000)));
+            }
+
+            sw.Reset();
+            sw.Start();
+            quickSort(list, random);
+            time = sw.ElapsedMilliseconds;
+            Console.WriteLine(time.ToString() + "ms");
+
+            Console.Write("quick sort with 3000 nodes takes ");
+            list = new DoubleLinkedList();
+            for (int i = 0; i < 3000; i++)
+            {
+                insertBeginning(list, new Node(null, null, random.Next(0, 10000)));
+            }
+
+            sw.Reset();
+            sw.Start();
+            quickSort(list, random);
+            time = sw.ElapsedMilliseconds;
+            Console.WriteLine(time.ToString() + "ms");
+
+            Console.Write("quick sort with 4000 nodes takes ");
+            list = new DoubleLinkedList();
+            for (int i = 0; i < 4000; i++)
+            {
+                insertBeginning(list, new Node(null, null, random.Next(0, 10000)));
+            }
+
+            sw.Reset();
+            sw.Start();
+            quickSort(list, random);
+            time = sw.ElapsedMilliseconds;
+            Console.WriteLine(time.ToString() + "ms");
+
+            Console.Write("quick sort with 5000 nodes takes ");
+            list = new DoubleLinkedList();
+            for (int i = 0; i < 5000; i++)
+            {
+                insertBeginning(list, new Node(null, null, random.Next(0, 10000)));
+            }
+
+            sw.Reset();
+            sw.Start();
+            quickSort(list, random);
+            time = sw.ElapsedMilliseconds;
+            Console.WriteLine(time.ToString() + "ms");
 
             Console.ReadLine();
         }
